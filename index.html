@@ -150,6 +150,13 @@
       box-shadow:
         0 0 10px rgba(255, 0, 50, 0.4),
         0 0 25px rgba(255, 220, 0, 0.35);
+
+      display: flex;
+      /* 🔥 NUEVO */
+      align-items: center;
+      /* 🔥 NUEVO */
+      justify-content: center;
+      /* 🔥 NUEVO */
     }
 
     button:hover {
@@ -226,27 +233,26 @@
       align-items: flex-end;
       padding: 0 30px;
       z-index: 50;
-      pointer-events: none;
     }
 
     #touchControls button {
       pointer-events: auto;
-      width: 70px;
-      height: 70px;
+      width: 75px;
+      height: 75px;
       border-radius: 50%;
-      border: none;
-      font-size: 26px;
+      border: 2px solid rgba(0, 255, 180, 0.5);
+      font-size: 22px;
       font-weight: bold;
-      color: white;
-      background: rgba(255, 255, 255, 0.18);
-      backdrop-filter: blur(6px);
-      box-shadow: 0 0 15px rgba(0, 255, 180, 0.35);
-      transition: 0.15s;
+      color: #00ffb3;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 20px rgba(0, 255, 180, 0.4);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
     }
 
     #touchControls button:active {
-      transform: scale(0.9);
-      background: rgba(255, 255, 255, 0.28);
+      transform: scale(0.85);
+      box-shadow: 0 0 30px rgba(0, 255, 180, 0.8);
     }
 
     .leftGroup {
@@ -366,7 +372,7 @@
         o.stop(audioCtx.currentTime + 0.4);
       }
 
-      const keys = { a: false, d: false, space: false };
+      window.keys = { a: false, d: false, space: false };
 
       window.addEventListener("keydown", (e) => {
         if (e.code === "KeyA") keys.a = true;
@@ -950,6 +956,8 @@
       ⚡ Dificultad alcanzada: <b>${getDifficulty(currentTime)}</b>
     `;
 
+        document.getElementById("touchControls").style.display = "none";
+
         gameover.style.display = "flex";
         ui.style.display = "none";
       }
@@ -977,6 +985,8 @@
 
         beep(880, 0.09, "triangle", 0.08);
         beep(660, 0.09, "triangle", 0.08);
+
+        document.getElementById("touchControls").style.display = "";
       }
 
       function restartGame() {
@@ -1029,56 +1039,6 @@
 
       loop();
 
-      /* ============================= */
-      /* CONTROLES TÁCTILES INTEGRADOS */
-      /* ============================= */
-
-      const btnLeft = document.getElementById("btnLeft");
-      const btnRight = document.getElementById("btnRight");
-      const btnJump = document.getElementById("btnJump");
-
-      if (btnLeft && btnRight && btnJump) {
-
-        function pressKey(code, state) {
-          const event = new KeyboardEvent(
-            state ? "keydown" : "keyup",
-            { code }
-          );
-          window.dispatchEvent(event);
-        }
-
-        // IZQUIERDA
-        btnLeft.addEventListener("touchstart", (e) => {
-          e.preventDefault();
-          pressKey("KeyA", true);
-        });
-
-        btnLeft.addEventListener("touchend", () => {
-          pressKey("KeyA", false);
-        });
-
-        // DERECHA
-        btnRight.addEventListener("touchstart", (e) => {
-          e.preventDefault();
-          pressKey("KeyD", true);
-        });
-
-        btnRight.addEventListener("touchend", () => {
-          pressKey("KeyD", false);
-        });
-
-        // SALTO
-        btnJump.addEventListener("touchstart", (e) => {
-          e.preventDefault();
-          pressKey("Space", true);
-        });
-
-        btnJump.addEventListener("touchend", () => {
-          pressKey("Space", false);
-        });
-
-      }
-
     })();
   </script>
 
@@ -1088,8 +1048,46 @@
       <button id="btnLeft">◀</button>
       <button id="btnRight">▶</button>
     </div>
-    <button id="btnJump">⭡</button>
+    <button id="btnJump">▲</button>
   </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+
+      const touch = document.getElementById("touchControls");
+      if (touch) touch.style.display = "none";
+
+      const btnLeft = document.getElementById("btnLeft");
+      const btnRight = document.getElementById("btnRight");
+      const btnJump = document.getElementById("btnJump");
+
+      if (!btnLeft || !btnRight || !btnJump) return;
+
+      function bind(btn, keyName) {
+        btn.addEventListener("pointerdown", (e) => {
+          e.preventDefault();
+          window.keys[keyName] = true;
+        });
+
+        btn.addEventListener("pointerup", () => {
+          window.keys[keyName] = false;
+        });
+
+        btn.addEventListener("pointercancel", () => {
+          window.keys[keyName] = false;
+        });
+
+        btn.addEventListener("pointerleave", () => {
+          window.keys[keyName] = false;
+        });
+      }
+
+      bind(btnLeft, "a");
+      bind(btnRight, "d");
+      bind(btnJump, "space");
+
+    });
+  </script>
 
 </body>
 
